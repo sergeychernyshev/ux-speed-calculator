@@ -113,6 +113,7 @@ class App extends Component {
       convertedDistribution,
       nonConvertedDistribution,
       conversionRateDistribution,
+      maxConversionRate,
       conversionDecay,
       conversionPovertyLine,
       mu,
@@ -284,7 +285,7 @@ class App extends Component {
                   type="range"
                   name="conversionPovertyLine"
                   min={0.5}
-                  max={5}
+                  max={maxConversionRate}
                   step={0.01}
                   value={conversionPovertyLine}
                   onChange={e =>
