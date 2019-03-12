@@ -119,8 +119,7 @@ class App extends Component {
       mu,
       sigma,
       volume,
-      displayMax,
-      step
+      displayMax
     } = this.state;
 
     return (
