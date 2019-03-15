@@ -8,44 +8,67 @@ import "./App.css";
 
 const INITIAL_VOLUME = 100000;
 const MAX_TIME = 100; // seconds
+
+// maximum range of the chart (show all values by default)
 const INITIAL_DISPLAY_MAX = 10; // seconds
 
+const INITIAL_MU = 0.95;
+const INITIAL_SIGMA = 0.8;
+
 const INITIAL_MAX_CONVERSION_RATE = 20; // at a theoretical fastest point
+
+const MIN_CONVERSION_DECAY = 0.3;
+const INITIAL_CONVERSION_DECAY = 1;
+
 const INITIAL_CONVERSION_POVERTY_LINE = 0.3; // doesn't degrade after this
+const INITIAL_AVERAGE_VALUE = 10;
+
+const percentile50color = "#fc8d8d";
+const percentile90color = "#8dfc8f";
+const percentile95color = "#8da3fc";
+
+const annotationStyles = {
+  font: {
+    size: 14,
+    weight: "bold",
+    color: "black"
+  },
+  arrowcolor: "black",
+  ax: 30,
+  ay: -30,
+  bordercolor: "black",
+  borderwidth: 1,
+  borderpad: 4,
+  opacity: 0.8
+};
+
+const rangeProps = {
+  type: "range",
+  style: { width: "90%" }
+};
+
+const numberProps = {
+  type: "number",
+  style: { width: "100px" }
+};
 
 class App extends Component {
   constructor(props) {
     super(props);
 
-    // bucket size on the histogram
-    const step = 0.1; // 100ms
-
-    // maximum range of the chart (show all values by default)
-    const displayMax = INITIAL_DISPLAY_MAX;
-
-    // calculate x coordinates points
-    const x = [];
-    for (let i = 0; i < MAX_TIME; i += step) {
-      x.push(i);
-    }
-
-    // total number of users observed
-    const volume = INITIAL_VOLUME;
-
     // initial parameters for the distribution
     const distParams = {
-      x,
-      volume,
-      mu: 0,
-      sigma: 1,
-      conversionDecay: 1,
+      volume: INITIAL_VOLUME,
+      mu: INITIAL_MU,
+      sigma: INITIAL_SIGMA,
+      conversionDecay: INITIAL_CONVERSION_DECAY,
+      averageValue: INITIAL_AVERAGE_VALUE,
       maxConversionRate: INITIAL_MAX_CONVERSION_RATE,
       conversionPovertyLine: INITIAL_CONVERSION_POVERTY_LINE
     };
 
     this.state = {
-      step,
-      displayMax,
+      displayMax: INITIAL_DISPLAY_MAX,
       ...distParams,
       ...this.calculateDistribution(distParams)
     };
@@ -53,7 +76,6 @@ class App extends Component {
 
   // calculate y coordinates based on x values and distribution
   calculateDistribution = ({
-    x,
     mu,
     sigma,
     volume,
@@ -61,6 +83,15 @@ class App extends Component {
     maxConversionRate,
     conversionPovertyLine
   }) => {
+    // bucket size on the histogram
+    const bucketSize = 0.1; // 100ms
+
+    // calculate x coordinates points
+    const x = [];
+    for (let i = 0; i < MAX_TIME; i += bucketSize) {
+      x.push(i);
+    }
+
     const dist = lognormal(x, {
       mu: mu,
       sigma: sigma
@@ -86,7 +117,67 @@ class App extends Component {
 
     i = 0;
     const averageSpeed =
-      totalPopulation.reduce((value, total) => total + value * x[i++]) / volume;
+      totalPopulation.reduce(
+        (total, amountOfUsers) => total + amountOfUsers * x[i++]
+      ) / volume;
+
+    let percentile50;
+    let percentile90;
+    let percentile95;
+
+    let found50 = false;
+    let found90 = false;
+    let found95 = false;
+
+    let users = 0;
+    const annotations = [];
+    totalPopulation.forEach((amountOfUsers, index) => {
+      users += amountOfUsers;
+      if (!found50 && users > volume * 0.5) {
+        found50 = true;
+        percentile50 = x[index - 1];
+
+        console.log(`users @ 50%ile: ${users}`);
+
+        annotations.push({
+          x: x[index - 1],
+          y: amountOfUsers,
+          text: `50%ile: ${Math.round(percentile50 * 1000)}ms`,
+          bgcolor: percentile50color,
+          ...annotationStyles
+        });
+      }
+      if (!found90 && users > volume * 0.9) {
+        found90 = true;
+        percentile90 = x[index - 1];
+
+        console.log(`users @ 90%ile: ${users}`);
+
+        annotations.push({
+          x: x[index - 1],
+          y: amountOfUsers,
+          text: `90%ile:  ${Math.round(percentile90 * 1000)}ms`,
+          bgcolor: percentile90color,
+          ...annotationStyles
+        });
+      }
+      if (!found95 && users > volume * 0.95) {
+        found95 = true;
+        percentile95 = x[index - 1];
+
+        console.log(`users @ 95%ile: ${users}`);
+
+        annotations.push({
+          x: x[index - 1],
+          y: amountOfUsers,
+          text: `95%ile:  ${Math.round(percentile95 * 1000)}ms`,
+          bgcolor: percentile95color,
+          ...annotationStyles
+        });
+      }
+    });
+
+    console.log(percentile50, percentile90, percentile95);
 
     const totalConverted = convertedDistribution.reduce(
       (value, total) => total + value
@@ -105,13 +196,19 @@ class App extends Component {
       totalConverted / (totalConverted + totalNonConverted);
 
     return {
+      x,
+      bucketSize,
       conversionRateDistribution,
       convertedDistribution,
       nonConvertedDistribution,
       totalConverted,
       totalNonConverted,
       averageConversionRate,
-      averageSpeed
+      averageSpeed,
+      annotations,
+      percentile50,
+      percentile90,
+      percentile95
     };
   };
 
@@ -126,17 +223,25 @@ class App extends Component {
     this.setState({ displayMax: parseFloat(e.target.value) || MAX_TIME });
   };
 
+  changeAverageValue = e => {
+    this.setState({
+      averageValue: parseFloat(e.target.value) || INITIAL_AVERAGE_VALUE
+    });
+  };
+
   render() {
     const {
       x,
       convertedDistribution,
       nonConvertedDistribution,
+      annotations,
       conversionRateDistribution,
       maxConversionRate,
       conversionDecay,
       conversionPovertyLine,
       totalConverted,
       averageConversionRate,
+      averageValue,
       mu,
       sigma,
       volume,
@@ -185,6 +290,7 @@ class App extends Component {
               width: 1000,
               height: 500,
               title: "UX Speed Distribution",
+              annotations,
               yaxis: {
                 title: "Number of users",
                 side: "left",
@@ -205,25 +311,73 @@ class App extends Component {
             }}
             useResizeHandler
           />
+
+          <div>
+            <span style={{ marginRight: "2em" }}>
+              Average Conversion Rate:{" "}
+              <b>{parseInt(averageConversionRate * 10000) / 100}%</b>
+            </span>
+            <span style={{ marginRight: "2em" }}>
+              Converted Users: <b>{totalConverted}</b>
+            </span>
+            <span style={{ marginRight: "2em" }}>
+              Total Value:{" "}
+              <b>
+                {parseInt(
+                  volume * averageConversionRate * averageValue
+                ).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  minimumFractionDigits: 0
+                })}
+              </b>
+            </span>
+          </div>
+
           <div style={{ width: "50%", float: "right" }}>
             <fieldset>
               <legend>Conversion Rate</legend>
 
               <p>
-                Converted Users:{" "}
-                <input type="number" value={totalConverted} readOnly />
-              </p>
-              <p>
-                Average Conversion Rate:{" "}
-                {parseInt(averageConversionRate * 10000) / 100}%
+                <div>
+                  Average Value of a User: $
+                  <input
+                    {...numberProps}
+                    value={averageValue}
+                    onChange={this.changeAverageValue}
+                  />
+                </div>
+                <input
+                  {...rangeProps}
+                  min={0.01}
+                  max={1000}
+                  step={0.01}
+                  value={averageValue}
+                  onChange={this.changeAverageValue}
+                />
               </p>
 
               <p>
                 <label>
-                  Conversion Decay:{" "}
+                  <div>
+                    Conversion Decay:{" "}
+                    <input
+                      {...numberProps}
+                      min={MIN_CONVERSION_DECAY}
+                      max={5}
+                      step={0.01}
+                      value={conversionDecay}
+                      onChange={e =>
+                        this.updateDistribution({
+                          conversionDecay: parseFloat(e.target.value)
+                        })
+                      }
+                    />
+                  </div>
                   <input
+                    style={{ width: "90%" }}
                     type="range"
-                    min={0.5}
+                    min={MIN_CONVERSION_DECAY}
                     max={5}
                     step={0.01}
                     value={conversionDecay}
@@ -238,9 +392,25 @@ class App extends Component {
 
               <p>
                 <label>
-                  Max Conversion:{" "}
+                  <div>
+                    Max Conversion:{" "}
+                    <input
+                      {...numberProps}
+                      min={0}
+                      max={100}
+                      size={6}
+                      step={0.01}
+                      value={maxConversionRate}
+                      onChange={e =>
+                        this.updateDistribution({
+                          maxConversionRate: parseFloat(e.target.value)
+                        })
+                      }
+                    />
+                    %
+                  </div>
                   <input
-                    type="range"
+                    {...rangeProps}
                     min={0}
                     max={100}
                     step={0.01}
@@ -251,28 +421,32 @@ class App extends Component {
                       })
                     }
                   />
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    size={6}
-                    step={0.01}
-                    value={maxConversionRate}
-                    onChange={e =>
-                      this.updateDistribution({
-                        maxConversionRate: parseFloat(e.target.value)
-                      })
-                    }
-                  />
-                  %
                 </label>
               </p>
 
               <p>
                 <label>
-                  Conversion Poverty Line:{" "}
+                  <div>
+                    Conversion Poverty Line:{" "}
+                    <input
+                      {...numberProps}
+                      name="conversionPovertyLine"
+                      readOnly
+                      min={0}
+                      size={6}
+                      max={maxConversionRate}
+                      step={0.01}
+                      value={conversionPovertyLine}
+                      onChange={e =>
+                        this.updateDistribution({
+                          conversionPovertyLine: parseFloat(e.target.value)
+                        })
+                      }
+                    />
+                    %
+                  </div>
                   <input
-                    type="range"
+                    {...rangeProps}
                     min={0}
                     max={maxConversionRate}
                     step={0.01}
@@ -283,22 +457,6 @@ class App extends Component {
                       })
                     }
                   />
-                  <input
-                    type="number"
-                    name="conversionPovertyLine"
-                    readOnly
-                    min={0}
-                    size={6}
-                    max={maxConversionRate}
-                    step={0.01}
-                    value={conversionPovertyLine}
-                    onChange={e =>
-                      this.updateDistribution({
-                        conversionPovertyLine: parseFloat(e.target.value)
-                      })
-                    }
-                  />
-                  %
                 </label>
               </p>
             </fieldset>
@@ -309,22 +467,24 @@ class App extends Component {
               <legend>Speed Distribution</legend>
               <p>
                 <label>
-                  Number of Users:{" "}
+                  <div>
+                    Number of Users:{" "}
+                    <input
+                      {...numberProps}
+                      name="volume"
+                      min={1}
+                      max={1000000}
+                      step={1}
+                      value={volume}
+                      onChange={e =>
+                        this.updateDistribution({
+                          volume: parseFloat(e.target.value)
+                        })
+                      }
+                    />
+                  </div>
                   <input
-                    type="range"
-                    name="volume"
-                    min={1}
-                    max={1000000}
-                    step={1}
-                    value={volume}
-                    onChange={e =>
-                      this.updateDistribution({
-                        volume: parseFloat(e.target.value)
-                      })
-                    }
-                  />
-                  <input
-                    type="number"
+                    {...rangeProps}
                     name="volume"
                     min={1}
                     max={1000000}
@@ -340,9 +500,24 @@ class App extends Component {
               </p>
               <p>
                 <label>
-                  <div>Base Speed (μ)</div>
+                  <div>
+                    Base Speed (μ):{" "}
+                    <input
+                      {...numberProps}
+                      name="mu"
+                      min="-3"
+                      max="3"
+                      step="0.1"
+                      value={mu}
+                      onChange={e =>
+                        this.updateDistribution({
+                          mu: parseFloat(e.target.value)
+                        })
+                      }
+                    />
+                  </div>
                   <input
-                    type="range"
+                    {...rangeProps}
                     name="mu"
                     min="-3"
                     max="3"
@@ -358,9 +533,24 @@ class App extends Component {
               </p>
               <p>
                 <label>
-                  <div>Variability (σ)</div>
+                  <div>
+                    Variability (σ):{" "}
+                    <input
+                      {...numberProps}
+                      name="sigma"
+                      min="0.05"
+                      max="3"
+                      step="0.01"
+                      value={sigma}
+                      onChange={e =>
+                        this.updateDistribution({
+                          sigma: parseFloat(e.target.value)
+                        })
+                      }
+                    />
+                  </div>
                   <input
-                    type="range"
+                    {...rangeProps}
                     name="sigma"
                     min="0.05"
                     max="3"
@@ -376,17 +566,27 @@ class App extends Component {
               </p>
               <p>
                 <label>
-                  Display Max:{" "}
+                  <div>
+                    Display Max:{" "}
+                    <input
+                      {...numberProps}
+                      min={2}
+                      max={MAX_TIME}
+                      step={1}
+                      value={displayMax}
+                      onChange={this.changeDisplayMax}
+                    />{" "}
+                    seconds
+                  </div>
                   <input
-                    type="number"
+                    {...rangeProps}
                     name="display"
-                    min={1}
+                    min={2}
                     max={MAX_TIME}
                     step={1}
                     value={displayMax}
                     onChange={this.changeDisplayMax}
-                  />{" "}
-                  seconds
+                  />
                 </label>
               </p>
             </fieldset>
