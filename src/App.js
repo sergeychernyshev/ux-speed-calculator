@@ -6,25 +6,33 @@ import lognormal from "distributions-lognormal-pdf";
 import logo from "./logo.svg";
 import "./App.css";
 
+// bucket size on the histogram
+const INITIAL_BUCKET_SIZE = 0.5; // 0.5s
+
+// total number of users
 const INITIAL_VOLUME = 100000;
+
+// total time range to calculate distribution for
 const MAX_TIME = 100; // seconds
 
 // maximum range of the chart (show all values by default)
-const INITIAL_DISPLAY_MAX = 10; // seconds
+const INITIAL_DISPLAY_MAX = 15; // seconds
 
-const INITIAL_MU = 0.95;
-const INITIAL_SIGMA = 0.8;
+const INITIAL_MU = 1.5;
+const INITIAL_SIGMA = 0.6;
 
-const INITIAL_MAX_CONVERSION_RATE = 20; // at a theoretical fastest point
+// theoretical max conversion at a fastest point of 0 seconds
+const INITIAL_MAX_CONVERSION_RATE = 50;
 
 const MIN_CONVERSION_DECAY = 0.3;
-const INITIAL_CONVERSION_DECAY = 1;
+const INITIAL_CONVERSION_DECAY = 0.85;
 
-const INITIAL_CONVERSION_POVERTY_LINE = 0.3; // doesn't degrade after this
+const INITIAL_CONVERSION_POVERTY_LINE = 1.2; // doesn't degrade after this
 const INITIAL_AVERAGE_VALUE = 10;
 
 // initial parameters for the distribution
 const INITIAL_PARAMS = {
+  bucketSize: INITIAL_BUCKET_SIZE,
   volume: INITIAL_VOLUME,
   mu: INITIAL_MU,
   sigma: INITIAL_SIGMA,
@@ -84,6 +92,7 @@ class App extends Component {
 
   // calculate y coordinates based on x values and distribution
   calculateDistribution = ({
+    bucketSize,
     mu,
     sigma,
     volume,
@@ -91,9 +100,6 @@ class App extends Component {
     maxConversionRate,
     conversionPovertyLine
   }) => {
-    // bucket size on the histogram
-    const bucketSize = 0.1; // 100ms
-
     // calculate x coordinates points
     const x = [];
     for (let i = 0; i < MAX_TIME; i += bucketSize) {
@@ -253,7 +259,8 @@ class App extends Component {
       mu,
       sigma,
       volume,
-      displayMax
+      displayMax,
+      bucketSize
     } = this.state;
 
     return (
@@ -445,7 +452,6 @@ class App extends Component {
                     Conversion Poverty Line:{" "}
                     <input
                       {...numberProps}
-                      name="conversionPovertyLine"
                       min={0}
                       size={6}
                       max={maxConversionRate}
@@ -482,43 +488,9 @@ class App extends Component {
               <p>
                 <label>
                   <div>
-                    Number of Users:{" "}
-                    <input
-                      {...numberProps}
-                      name="volume"
-                      min={1}
-                      max={1000000}
-                      step={1}
-                      value={volume}
-                      onChange={e =>
-                        this.updateDistribution({
-                          volume: parseFloat(e.target.value)
-                        })
-                      }
-                    />
-                  </div>
-                  <input
-                    {...rangeProps}
-                    name="volume"
-                    min={1}
-                    max={1000000}
-                    step={1}
-                    value={volume}
-                    onChange={e =>
-                      this.updateDistribution({
-                        volume: parseFloat(e.target.value)
-                      })
-                    }
-                  />
-                </label>
-              </p>
-              <p>
-                <label>
-                  <div>
                     Base Speed (μ):{" "}
                     <input
                       {...numberProps}
-                      name="mu"
                       min="-3"
                       max="3"
                       step="0.01"
@@ -532,7 +504,6 @@ class App extends Component {
                   </div>
                   <input
                     {...rangeProps}
-                    name="mu"
                     min="-3"
                     max="3"
                     step="0.01"
@@ -551,7 +522,6 @@ class App extends Component {
                     Variability (σ):{" "}
                     <input
                       {...numberProps}
-                      name="sigma"
                       min="0.05"
                       max="3"
                       step="0.01"
@@ -565,7 +535,6 @@ class App extends Component {
                   </div>
                   <input
                     {...rangeProps}
-                    name="sigma"
                     min="0.05"
                     max="3"
                     step="0.01"
@@ -573,6 +542,37 @@ class App extends Component {
                     onChange={e =>
                       this.updateDistribution({
                         sigma: parseFloat(e.target.value)
+                      })
+                    }
+                  />
+                </label>
+              </p>
+              <p>
+                <label>
+                  <div>
+                    Number of Users:{" "}
+                    <input
+                      {...numberProps}
+                      min={1}
+                      max={1000000}
+                      step={1}
+                      value={volume}
+                      onChange={e =>
+                        this.updateDistribution({
+                          volume: parseFloat(e.target.value)
+                        })
+                      }
+                    />
+                  </div>
+                  <input
+                    {...rangeProps}
+                    min={1}
+                    max={1000000}
+                    step={1}
+                    value={volume}
+                    onChange={e =>
+                      this.updateDistribution({
+                        volume: parseFloat(e.target.value)
                       })
                     }
                   />
@@ -594,12 +594,43 @@ class App extends Component {
                   </div>
                   <input
                     {...rangeProps}
-                    name="display"
                     min={2}
                     max={MAX_TIME}
                     step={1}
                     value={displayMax}
                     onChange={this.changeDisplayMax}
+                  />
+                </label>
+              </p>
+              <p>
+                <label>
+                  <div>
+                    Bucket size:{" "}
+                    <input
+                      {...numberProps}
+                      min={0.05}
+                      max={1}
+                      step={0.05}
+                      value={bucketSize}
+                      onChange={e =>
+                        this.updateDistribution({
+                          bucketSize: parseFloat(e.target.value)
+                        })
+                      }
+                    />{" "}
+                    seconds
+                  </div>
+                  <input
+                    {...rangeProps}
+                    min={0.05}
+                    max={1}
+                    step={0.05}
+                    value={bucketSize}
+                    onChange={e =>
+                      this.updateDistribution({
+                        bucketSize: parseFloat(e.target.value)
+                      })
+                    }
                   />
                 </label>
               </p>
