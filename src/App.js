@@ -23,6 +23,17 @@ const INITIAL_CONVERSION_DECAY = 1;
 const INITIAL_CONVERSION_POVERTY_LINE = 0.3; // doesn't degrade after this
 const INITIAL_AVERAGE_VALUE = 10;
 
+// initial parameters for the distribution
+const INITIAL_PARAMS = {
+  volume: INITIAL_VOLUME,
+  mu: INITIAL_MU,
+  sigma: INITIAL_SIGMA,
+  conversionDecay: INITIAL_CONVERSION_DECAY,
+  averageValue: INITIAL_AVERAGE_VALUE,
+  maxConversionRate: INITIAL_MAX_CONVERSION_RATE,
+  conversionPovertyLine: INITIAL_CONVERSION_POVERTY_LINE
+};
+
 const percentile50color = "#fc8d8d";
 const percentile90color = "#8dfc8f";
 const percentile95color = "#8da3fc";
@@ -56,23 +67,20 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    // initial parameters for the distribution
-    const distParams = {
-      volume: INITIAL_VOLUME,
-      mu: INITIAL_MU,
-      sigma: INITIAL_SIGMA,
-      conversionDecay: INITIAL_CONVERSION_DECAY,
-      averageValue: INITIAL_AVERAGE_VALUE,
-      maxConversionRate: INITIAL_MAX_CONVERSION_RATE,
-      conversionPovertyLine: INITIAL_CONVERSION_POVERTY_LINE
-    };
-
     this.state = {
       displayMax: INITIAL_DISPLAY_MAX,
-      ...distParams,
-      ...this.calculateDistribution(distParams)
+      ...INITIAL_PARAMS,
+      ...this.calculateDistribution(INITIAL_PARAMS)
     };
   }
+
+  resetConfigurations = () => {
+    this.setState({
+      displayMax: INITIAL_DISPLAY_MAX,
+      ...INITIAL_PARAMS,
+      ...this.calculateDistribution({ ...this.state, ...INITIAL_PARAMS })
+    });
+  };
 
   // calculate y coordinates based on x values and distribution
   calculateDistribution = ({
@@ -289,7 +297,7 @@ class App extends Component {
               barmode: "stack",
               width: 1000,
               height: 500,
-              title: "UX Speed Distribution",
+              title: "UX Speed Calculator",
               annotations,
               yaxis: {
                 title: "Number of users",
@@ -332,6 +340,13 @@ class App extends Component {
                 })}
               </b>
             </span>
+
+            <button
+              style={{ height: "3em" }}
+              onClick={this.resetConfigurations}
+            >
+              Reset
+            </button>
           </div>
 
           <div style={{ width: "50%", float: "right" }}>
@@ -431,7 +446,6 @@ class App extends Component {
                     <input
                       {...numberProps}
                       name="conversionPovertyLine"
-                      readOnly
                       min={0}
                       size={6}
                       max={maxConversionRate}
@@ -507,7 +521,7 @@ class App extends Component {
                       name="mu"
                       min="-3"
                       max="3"
-                      step="0.1"
+                      step="0.01"
                       value={mu}
                       onChange={e =>
                         this.updateDistribution({
@@ -521,7 +535,7 @@ class App extends Component {
                     name="mu"
                     min="-3"
                     max="3"
-                    step="0.1"
+                    step="0.01"
                     value={mu}
                     onChange={e =>
                       this.updateDistribution({
