@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.png" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
@@ -23,10 +23,220 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+    <link rel="stylesheet" href="%PUBLIC_URL%/App.css" />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div>
+        <header>
+          <h1>
+            <img
+              src="/static/media/logo.c6483cf1.svg"
+              class="app-logo"
+              alt="logo"
+            />
+            UX Speed Calculator
+          </h1>
+        </header>
+        <section>
+          <div
+            class="chart js-plotly-plot"
+            style="position: relative; display: inline-block;"
+          ></div>
+          <div>
+            <span class="output">Average Conversion Rate: <b>4.03%</b></span
+            ><span class="output">Converted Users: <b>4029</b></span
+            ><span class="output">Total Value: <b>$40,311</b></span
+            ><button>Reset</button>
+          </div>
+        </section>
+        <section>
+          <div class="config-panel">
+            <fieldset>
+              <legend>Conversion Rate</legend>
+              <div class="field">
+                <div>
+                  Average Value of a Converted User: $<input
+                    type="number"
+                    min="0.01"
+                    max="1000"
+                    step="0.01"
+                    value="10"
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="0.01"
+                  max="1000"
+                  step="0.01"
+                  value="10"
+                />
+              </div>
+              <div class="field">
+                <div>
+                  Conversion Decay:
+                  <input
+                    type="number"
+                    min="0.3"
+                    max="5"
+                    step="0.01"
+                    value="0.85"
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="0.3"
+                  max="5"
+                  step="0.01"
+                  value="0.85"
+                />
+              </div>
+              <div class="field">
+                <div>
+                  Max Conversion:
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value="50"
+                  />%
+                </div>
+                <input type="range" min="0" max="100" step="0.01" value="50" />
+              </div>
+              <div class="field">
+                <div>
+                  Conversion Poverty Line:
+                  <input
+                    type="number"
+                    min="0"
+                    max="50"
+                    step="0.01"
+                    value="1.2"
+                  />%
+                </div>
+                <input type="range" min="0" max="50" step="0.01" value="1.2" />
+              </div>
+            </fieldset>
+          </div>
+          <div class="config-panel">
+            <fieldset>
+              <legend>Speed Distribution</legend>
+              <div class="field">
+                <div>
+                  Base Speed (μ):
+                  <input
+                    type="number"
+                    min="-3"
+                    max="3"
+                    step="0.01"
+                    value="1.5"
+                  />
+                </div>
+                <input type="range" min="-3" max="3" step="0.01" value="1.5" />
+              </div>
+              <div class="field">
+                <div>
+                  Variability (σ):
+                  <input
+                    type="number"
+                    min="0.05"
+                    max="3"
+                    step="0.01"
+                    value="0.6"
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="0.05"
+                  max="3"
+                  step="0.01"
+                  value="0.6"
+                />
+              </div>
+            </fieldset>
+          </div>
+          <div class="config-panel">
+            <fieldset>
+              <legend>Chart Parameters</legend>
+              <div class="field">
+                <div>
+                  Number of Users:
+                  <input
+                    type="number"
+                    min="10000"
+                    max="1000000"
+                    step="1"
+                    value="100000"
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="10000"
+                  max="1000000"
+                  step="1"
+                  value="100000"
+                />
+              </div>
+              <div class="field">
+                <div>
+                  Display Max:
+                  <input
+                    type="number"
+                    min="2"
+                    max="100"
+                    step="1"
+                    value="15"
+                  />seconds
+                </div>
+                <input type="range" min="2" max="100" step="1" value="15" />
+              </div>
+              <div class="field">
+                <div>
+                  Bucket size:
+                  <input
+                    type="number"
+                    min="0.05"
+                    max="1"
+                    step="0.05"
+                    value="0.5"
+                  />seconds
+                </div>
+                <input
+                  type="range"
+                  min="0.05"
+                  max="1"
+                  step="0.05"
+                  value="0.5"
+                />
+              </div>
+            </fieldset>
+          </div>
+          <div style="clear: both;"></div>
+        </section>
+        <footer>
+          <span
+            >2019 ©
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://www.sergeychernyshev.com"
+              >Sergey Chernyshev</a
+            ></span
+          ><span
+            >Logo
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://commons.wikimedia.org/wiki/File:Antu_accessories-calculator.svg"
+              >image</a
+            >
+            by Fabián Alexis</span
+          >
+        </footer>
+      </div>
+    </div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
