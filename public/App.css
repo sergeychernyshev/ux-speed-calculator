@@ -45,17 +45,25 @@ footer span {
   margin-right: 5em;
 }
 
-.config-panel {
-  width: 33.33%;
-  float: right;
+.configuration {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.configuration fieldset {
+  flex-grow: 1;
 }
 
 .field {
   margin: 0.5em 0;
 }
 
+.field label {
+  display: block;
+}
+
 .field input[type="range"] {
-  width: 90%;
+  width: 100%;
 }
 
 .field input[type="number"] {
@@ -63,7 +71,19 @@ footer span {
 }
 
 .output {
-  margin-right: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.output div {
+  padding: 0.5em 2em;
+  vertical-align: center;
+
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
 }
 
 .chart {
@@ -77,6 +97,11 @@ button {
   background-color: blueviolet;
   color: white;
   font-weight: bold;
+}
+
+button:disabled {
+  background-color: hsla(0, 0%, 93%, 1);
+  color: hsla(0, 0%, 40%, 1);
 }
 
 section {

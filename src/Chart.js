@@ -1,7 +1,22 @@
 import React from "react";
 import Plot from "react-plotly.js";
 
-const Chart = ({
+export const annotationStyles = {
+  font: {
+    size: 14,
+    weight: "bold",
+    color: "black"
+  },
+  arrowcolor: "black",
+  ax: 30,
+  ay: -30,
+  bordercolor: "black",
+  borderwidth: 1,
+  borderpad: 4,
+  opacity: 0.8
+};
+
+export const Chart = ({
   x,
   convertedDistribution,
   nonConvertedDistribution,
@@ -69,5 +84,3 @@ const Chart = ({
     }}
   />
 );
-
-export default Chart;
