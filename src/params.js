@@ -101,12 +101,19 @@ export const updateParam = (params, name, value, prop = "value") => {
   let finalValue =
     parsedValue || parsedValue === 0 ? parsedValue : params[name].initial;
 
-  // enforce limits
-  if (finalValue > params[name].max || finalValue < params[name].min) {
-    finalValue = params[name].initial;
+  params[name][prop] = finalValue;
+
+  if (params[name].max < params[name].min) {
+    params[name].max = params[name].min;
   }
 
-  params[name][prop] = finalValue;
+  if (params[name].value < params[name].min) {
+    params[name].value = params[name].min;
+  }
+
+  if (params[name].value > params[name].max) {
+    params[name].value = params[name].max;
+  }
 
   // if we are updating a parameter value,
   // check if it in turn needs to update other parameters' configurations
