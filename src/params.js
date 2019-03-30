@@ -4,7 +4,8 @@ const params = {
     readOnly: true,
     initial: 100,
     units: "seconds",
-    updates: { displayMax: "max" }
+    updates: { displayMax: "max" },
+    serialize: false
   },
   bucketSize: {
     description: "",
@@ -12,7 +13,8 @@ const params = {
     initial: 0.5, // 0.5s
     min: 0.05,
     max: 1,
-    step: 0.01
+    step: 0.01,
+    serialize: true
   },
   volume: {
     description: "Total number of users",
@@ -20,7 +22,8 @@ const params = {
     initial: 100000,
     min: 10000,
     max: 1000000,
-    step: 1
+    step: 1,
+    serialize: true
   },
   mu: {
     description: "'Location' of lognormal speed distribution",
@@ -28,7 +31,8 @@ const params = {
     initial: 1.5,
     min: -3,
     max: 3,
-    step: 0.01
+    step: 0.01,
+    serialize: true
   },
   sigma: {
     description: "'Scale' of lognormal speed distribution",
@@ -36,7 +40,8 @@ const params = {
     initial: 0.6,
     min: 0.05,
     max: 3,
-    step: 0.01
+    step: 0.01,
+    serialize: true
   },
   conversionDecay: {
     description: "Speed (power) of exponential conversion decay",
@@ -44,7 +49,8 @@ const params = {
     initial: 0.85,
     min: 0,
     max: 5,
-    step: 0.01
+    step: 0.01,
+    serialize: true
   },
   averageValue: {
     label: "Average Value of a Converted User",
@@ -52,7 +58,8 @@ const params = {
     min: 0.01,
     max: 1000,
     step: 0.01,
-    displayOnly: true
+    displayOnly: true,
+    serialize: true
   },
   maxConversionRate: {
     description:
@@ -65,7 +72,8 @@ const params = {
     units: "%",
     updates: {
       conversionPovertyLine: "max"
-    }
+    },
+    serialize: true
   },
   conversionPovertyLine: {
     description: "Lowest conversion rate of the infinitely slow experiences",
@@ -73,7 +81,8 @@ const params = {
     initial: 1.2,
     min: 0,
     step: 0.01,
-    units: "%"
+    units: "%",
+    serialize: true
   },
   displayMax: {
     description: "Maxumim value of speed to display on the chart",
@@ -82,7 +91,8 @@ const params = {
     min: 2,
     step: 1,
     units: "seconds",
-    displayOnly: true
+    displayOnly: true,
+    serialize: true
   }
 };
 
@@ -131,8 +141,8 @@ export const updateParam = (params, name, value, prop = "value") => {
   return params;
 };
 
-export const getInitialParams = () =>
+export const getInitialParams = override =>
   Object.keys(params).reduce(
-    (params, name) => updateParam(params, name),
+    (params, name) => updateParam(params, name, override[name]),
     params
   );

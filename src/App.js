@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import qs from "query-string";
 
 import ConfigPanel from "./ConfigPanel";
 import Field from "./Field";
@@ -13,7 +14,7 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    const params = getInitialParams();
+    const params = getInitialParams(qs.parse(window.location.search));
 
     this.state = { params, ...distribution(params), adjusted: false };
   }
@@ -40,6 +41,23 @@ class App extends Component {
     return param;
   }
 
+  updateURL(params) {
+    const url =
+      "/?" +
+      Object.keys(params)
+        .reduce((acc, name) => {
+          if (params[name].serialize) {
+            acc.push(name);
+          }
+
+          return acc;
+        }, [])
+        .map(name => name + "=" + params[name].value)
+        .join("&");
+
+    window.history.pushState(params, null, url);
+  }
+
   /**
    * Sets current value of the parameter
    *
@@ -60,6 +78,8 @@ class App extends Component {
         };
 
     this.setState(newState);
+
+    this.updateURL(params);
   }
 
   render() {
