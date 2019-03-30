@@ -16,11 +16,17 @@ class App extends Component {
 
     const params = getInitialParams(qs.parse(window.location.search));
 
-    this.state = { params, ...distribution(params), adjusted: false };
+    this.state = {
+      params,
+      ...distribution(params),
+      adjusted: !!window.location.search
+    };
   }
 
   reset = () => {
-    const params = getInitialParams();
+    window.history.pushState({}, null, "/");
+
+    const params = getInitialParams({});
 
     this.setState({
       params,
@@ -136,32 +142,35 @@ class App extends Component {
           <Chart {...chartProps} />
           <div className="output">
             <div>
-              Average Conversion Rate:{" "}
-              <b>{parseInt(averageConversionRate * 10000) / 100}%</b>
+              Average Conversion Rate
+              <p>
+                <b>{parseInt(averageConversionRate * 10000) / 100}%</b>
+              </p>
             </div>
             <div>
-              Converted Users: <b>{totalConverted}</b>
+              Converted Users
+              <p>
+                <b>{totalConverted}</b>
+              </p>
             </div>
             <div>
-              Total Value:{" "}
-              <b>
-                {parseInt(
-                  params.volume.value *
-                    averageConversionRate *
-                    params.averageValue.value
-                ).toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  minimumFractionDigits: 0
-                })}
-              </b>
+              Total Value
+              <p>
+                <b>
+                  {parseInt(
+                    params.volume.value *
+                      averageConversionRate *
+                      params.averageValue.value
+                  ).toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    minimumFractionDigits: 0
+                  })}
+                </b>
+              </p>
             </div>
 
-            <div>
-              <button onClick={this.reset} disabled={!adjusted}>
-                Reset
-              </button>
-            </div>
+            <div>{adjusted && <button onClick={this.reset}>Reset</button>}</div>
           </div>
         </section>
 

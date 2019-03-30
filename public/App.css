@@ -52,6 +52,14 @@ footer span {
 
 .configuration fieldset {
   flex-grow: 1;
+  border-style: solid;
+  border-color: grey;
+  border-radius: 0.4em;
+}
+
+.configuration fieldset legend {
+  padding: 0.2em 1em;
+  border: 1px solid grey;
 }
 
 .field {
