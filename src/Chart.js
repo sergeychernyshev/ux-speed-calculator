@@ -21,6 +21,7 @@ export const Chart = ({
   convertedDistribution,
   nonConvertedDistribution,
   conversionRateDistribution,
+  bounceRateDistribution,
   displayMax,
   annotations
 }) => (
@@ -55,6 +56,16 @@ export const Chart = ({
         x,
         y: conversionRateDistribution,
         yaxis: "y2"
+      },
+      {
+        type: "line",
+        name: "bounce rate",
+        marker: {
+          color: "red"
+        },
+        x,
+        y: bounceRateDistribution,
+        yaxis: "y2"
       }
     ]}
     layout={{
@@ -62,12 +73,12 @@ export const Chart = ({
       annotations,
       yaxis: {
         title: "Number of users",
-        side: "left",
+        side: "right",
         rangemode: "nonnegative"
       },
       yaxis2: {
-        title: "Conversion rate",
-        side: "right",
+        title: "Conversion rate, Bounce rate",
+        side: "left",
         overlaying: "y",
         showgrid: false,
         rangemode: "nonnegative",

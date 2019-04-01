@@ -10,6 +10,30 @@ import logo from "./logo.svg";
 import { getInitialParams, updateParam } from "./params";
 import distribution from "./distribution";
 
+const panels = [
+  {
+    label: "Chart Parameters",
+    params: ["volume", "displayMax", "bucketSize"]
+  },
+  {
+    label: "Speed Distribution",
+    params: ["mu", "sigma"]
+  },
+  {
+    label: "Bounce Rate",
+    params: ["bounceRateShift", "bounceRateScale", "bounceTimeCompression"]
+  },
+  {
+    label: "Conversion Rate",
+    params: [
+      "averageValue",
+      "conversionDecay",
+      "maxConversionRate",
+      "conversionPovertyLine"
+    ]
+  }
+];
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -95,6 +119,7 @@ class App extends Component {
       nonConvertedDistribution,
       annotations,
       conversionRateDistribution,
+      bounceRateDistribution,
       totalConverted,
       averageConversionRate,
       params,
@@ -106,29 +131,10 @@ class App extends Component {
       convertedDistribution,
       nonConvertedDistribution,
       conversionRateDistribution,
+      bounceRateDistribution,
       displayMax: params.displayMax.value,
       annotations
     };
-
-    const panels = [
-      {
-        label: "Chart Parameters",
-        params: ["volume", "displayMax", "bucketSize"]
-      },
-      {
-        label: "Speed Distribution",
-        params: ["mu", "sigma"]
-      },
-      {
-        label: "Conversion Rate",
-        params: [
-          "averageValue",
-          "conversionDecay",
-          "maxConversionRate",
-          "conversionPovertyLine"
-        ]
-      }
-    ];
 
     return (
       <div>
@@ -140,38 +146,39 @@ class App extends Component {
         </header>
         <section>
           <Chart {...chartProps} />
-          <div className="output">
-            <div>
-              Average Conversion Rate
-              <p>
-                <b>{parseInt(averageConversionRate * 10000) / 100}%</b>
-              </p>
-            </div>
-            <div>
-              Converted Users
-              <p>
-                <b>{totalConverted}</b>
-              </p>
-            </div>
-            <div>
-              Total Value
-              <p>
-                <b>
-                  {parseInt(
-                    params.volume.value *
-                      averageConversionRate *
-                      params.averageValue.value
-                  ).toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    minimumFractionDigits: 0
-                  })}
-                </b>
-              </p>
-            </div>
+        </section>
 
-            <div>{adjusted && <button onClick={this.reset}>Reset</button>}</div>
+        <section className="output">
+          <div>
+            Average Conversion Rate
+            <p>
+              <b>{parseInt(averageConversionRate * 10000) / 100}%</b>
+            </p>
           </div>
+          <div>
+            Converted Users
+            <p>
+              <b>{totalConverted}</b>
+            </p>
+          </div>
+          <div>
+            Total Value
+            <p>
+              <b>
+                {parseInt(
+                  params.volume.value *
+                    averageConversionRate *
+                    params.averageValue.value
+                ).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  minimumFractionDigits: 0
+                })}
+              </b>
+            </p>
+          </div>
+
+          <div>{adjusted && <button onClick={this.reset}>Reset</button>}</div>
         </section>
 
         <section className="configuration">

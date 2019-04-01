@@ -37,6 +37,23 @@ const distribution = params => {
     Math.floor((value * conversionRateDistribution[i++]) / 100)
   );
 
+  const bounceRateDistribution = x.map(time => {
+    let bounceRate =
+      Math.log10(time * params.bounceTimeCompression.value + 1) *
+        params.bounceRateScale.value +
+      params.bounceRateShift.value;
+
+    if (bounceRate > 100) {
+      bounceRate = 100;
+    }
+
+    if (bounceRate < 0) {
+      bounceRate = 0;
+    }
+
+    return bounceRate;
+  });
+
   i = 0;
   const averageSpeed =
     totalPopulation.reduce(
@@ -114,6 +131,7 @@ const distribution = params => {
     conversionRateDistribution,
     convertedDistribution,
     nonConvertedDistribution,
+    bounceRateDistribution,
     totalConverted,
     totalNonConverted,
     averageConversionRate,

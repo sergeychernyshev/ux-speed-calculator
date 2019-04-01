@@ -10,7 +10,7 @@ const params = {
   bucketSize: {
     description: "",
     label: "bucket size on the histogram",
-    initial: 0.5, // 0.5s
+    initial: 0.1, // 0.5s
     min: 0.05,
     max: 1,
     step: 0.01,
@@ -19,7 +19,7 @@ const params = {
   volume: {
     description: "Total number of users",
     label: "Number of Users",
-    initial: 100000,
+    initial: 1000000,
     min: 10000,
     max: 1000000000,
     step: 1,
@@ -87,11 +87,39 @@ const params = {
   displayMax: {
     description: "Maxumim value of speed to display on the chart",
     label: "Display Max",
-    initial: 15,
+    initial: 9.99,
     min: 2,
     step: 1,
     units: "seconds",
     displayOnly: true,
+    serialize: true
+  },
+  bounceRateShift: {
+    description: "Minimum bounce rate at theoretical 0",
+    label: "Min bounce rate",
+    initial: 0,
+    min: 0,
+    max: 100,
+    step: 0.5,
+    units: "%",
+    serialize: true
+  },
+  bounceRateScale: {
+    description: "Maximum bounce rate at theoretical inifinite point",
+    label: "Max bounce rate",
+    initial: 50,
+    min: 0,
+    max: 100,
+    step: 0.5,
+    units: "%",
+    serialize: true
+  },
+  bounceTimeCompression: {
+    description: "Time to bounce compression",
+    label: "Bounce time compression",
+    initial: 4,
+    min: 0.05,
+    step: 0.05,
     serialize: true
   }
 };
