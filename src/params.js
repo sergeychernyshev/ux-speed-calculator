@@ -97,7 +97,7 @@ const params = {
   bounceRateShift: {
     description: "Minimum bounce rate at theoretical 0",
     label: "Min bounce rate",
-    initial: 0,
+    initial: 20,
     min: 0,
     max: 100,
     step: 0.5,
@@ -105,8 +105,8 @@ const params = {
     serialize: true
   },
   bounceRateScale: {
-    description: "Maximum bounce rate at theoretical inifinite point",
-    label: "Max bounce rate",
+    description: "How high is the bounce rate on the site",
+    label: "Bounce rate scale",
     initial: 50,
     min: 0,
     max: 100,
@@ -115,7 +115,7 @@ const params = {
     serialize: true
   },
   bounceTimeCompression: {
-    description: "Time to bounce compression",
+    description: "How fast does bounce rate affect the users",
     label: "Bounce time compression",
     initial: 4,
     min: 0.05,
