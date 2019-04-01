@@ -1,6 +1,10 @@
 import React from "react";
 import Plot from "react-plotly.js";
 
+const ACTIVE_COLOR = "rgb(31, 119, 180)";
+const CONVERSION_COLOR = "#60e24f";
+const BOUNCED_COLOR = "silver";
+
 export const annotationStyles = {
   font: {
     size: 14,
@@ -18,6 +22,7 @@ export const annotationStyles = {
 
 export const Chart = ({
   x,
+  bouncedDistribution,
   convertedDistribution,
   nonConvertedDistribution,
   conversionRateDistribution,
@@ -33,7 +38,7 @@ export const Chart = ({
         type: "bar",
         name: "converted",
         marker: {
-          color: "rgb(255, 127, 14)"
+          color: CONVERSION_COLOR
         },
         x,
         y: convertedDistribution
@@ -42,16 +47,25 @@ export const Chart = ({
         type: "bar",
         name: "non-converted",
         marker: {
-          color: "rgb(31, 119, 180)"
+          color: ACTIVE_COLOR
         },
         x,
         y: nonConvertedDistribution
       },
       {
+        type: "bar",
+        name: "bounced",
+        marker: {
+          color: BOUNCED_COLOR
+        },
+        x,
+        y: bouncedDistribution
+      },
+      {
         type: "line",
         name: "conv. rate",
         marker: {
-          color: "rgb(255, 127, 14)"
+          color: CONVERSION_COLOR
         },
         x,
         y: conversionRateDistribution,
@@ -61,7 +75,7 @@ export const Chart = ({
         type: "line",
         name: "bounce rate",
         marker: {
-          color: "red"
+          color: BOUNCED_COLOR
         },
         x,
         y: bounceRateDistribution,

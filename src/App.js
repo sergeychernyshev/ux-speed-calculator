@@ -115,6 +115,7 @@ class App extends Component {
   render() {
     const {
       x,
+      bouncedDistribution,
       convertedDistribution,
       nonConvertedDistribution,
       annotations,
@@ -122,12 +123,14 @@ class App extends Component {
       bounceRateDistribution,
       totalConverted,
       averageConversionRate,
+      averageNonBouncedConversionRate,
       params,
       adjusted
     } = this.state;
 
     const chartProps = {
       x,
+      bouncedDistribution,
       convertedDistribution,
       nonConvertedDistribution,
       conversionRateDistribution,
@@ -152,7 +155,12 @@ class App extends Component {
           <div>
             Average Conversion Rate
             <p>
-              <b>{parseInt(averageConversionRate * 10000) / 100}%</b>
+              <b title="% of total users">
+                {parseInt(averageConversionRate * 10000) / 100}%
+              </b>{" "}
+              <span title="% of users who didn't bounce">
+                ({parseInt(averageNonBouncedConversionRate * 10000) / 100}%)
+              </span>
             </p>
           </div>
           <div>
@@ -166,9 +174,7 @@ class App extends Component {
             <p>
               <b>
                 {parseInt(
-                  params.volume.value *
-                    averageConversionRate *
-                    params.averageValue.value
+                  totalConverted * params.averageValue.value
                 ).toLocaleString("en-US", {
                   style: "currency",
                   currency: "USD",

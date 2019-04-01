@@ -14,6 +14,7 @@ const distribution = params => {
     x.push(i);
   }
 
+  // lognormal distribution
   const dist = lognormal(x, {
     mu: params.mu.value,
     sigma: params.sigma.value
@@ -21,22 +22,12 @@ const distribution = params => {
 
   const distTotal = dist.reduce((total, value) => total + value);
 
+  // total population distribution (over page speed)
   const totalPopulation = dist.map(value =>
     Math.floor((value / distTotal) * params.volume.value)
   );
 
-  const conversionRateDistribution = x.map(
-    time =>
-      (params.maxConversionRate.value - params.conversionPovertyLine.value) *
-        Math.exp(-time * params.conversionDecay.value) +
-      params.conversionPovertyLine.value
-  );
-
-  let i = 0;
-  const convertedDistribution = totalPopulation.map(value =>
-    Math.floor((value * conversionRateDistribution[i++]) / 100)
-  );
-
+  // bouce rate distribution (logarythmic)
   const bounceRateDistribution = x.map(time => {
     let bounceRate =
       Math.log10(time * params.bounceTimeCompression.value + 1) *
@@ -54,11 +45,62 @@ const distribution = params => {
     return bounceRate;
   });
 
-  i = 0;
+  // distribution of bounced users (over page speed)
+  const bouncedDistribution = totalPopulation.map((value, index) =>
+    Math.floor((value * bounceRateDistribution[index]) / 100)
+  );
+
+  // conversion rate distribution (exponential)
+  const conversionRateDistribution = x.map(
+    time =>
+      (params.maxConversionRate.value - params.conversionPovertyLine.value) *
+        Math.exp(-time * params.conversionDecay.value) +
+      params.conversionPovertyLine.value
+  );
+
+  // distribution of converted users (over page speed)
+  const convertedDistribution = totalPopulation.map((value, index) =>
+    Math.floor(
+      ((value - bouncedDistribution[index]) *
+        conversionRateDistribution[index]) /
+        100
+    )
+  );
+
+  // distribution of users who didn't bounce but still didn't convert (over page speed)
+  const nonConvertedDistribution = totalPopulation.map(
+    (population, index) =>
+      population - bouncedDistribution[index] - convertedDistribution[index]
+  );
+
+  const totalBounced = bouncedDistribution.reduce(
+    (value, total) => total + value,
+    0
+  );
+
+  const totalConverted = convertedDistribution.reduce(
+    (value, total) => total + value,
+    0
+  );
+
+  const totalNonConverted = nonConvertedDistribution.reduce(
+    (value, total) => total + value,
+    0
+  );
+
+  // average speed
   const averageSpeed =
     totalPopulation.reduce(
-      (total, amountOfUsers) => total + amountOfUsers * x[i++]
+      (total, amountOfUsers, index) => total + amountOfUsers * x[index]
     ) / params.volume.value;
+
+  const averageConversionRate = totalConverted
+    ? totalConverted / (totalConverted + totalNonConverted + totalBounced)
+    : 0;
+
+  const averageNonBouncedConversionRate = totalConverted
+    ? totalConverted / (totalConverted + totalNonConverted)
+    : 0;
 
   let percentile50;
   let percentile90;
@@ -110,31 +152,18 @@ const distribution = params => {
     }
   });
 
-  const totalConverted = convertedDistribution.reduce(
-    (value, total) => total + value
-  );
-
-  i = 0;
-  const nonConvertedDistribution = totalPopulation.map(
-    value => value - convertedDistribution[i++]
-  );
-
-  const totalNonConverted = nonConvertedDistribution.reduce(
-    (value, total) => total + value
-  );
-
-  const averageConversionRate =
-    totalConverted / (totalConverted + totalNonConverted);
-
   return {
     x,
     conversionRateDistribution,
     convertedDistribution,
+    bouncedDistribution,
     nonConvertedDistribution,
     bounceRateDistribution,
+    totalBounced,
     totalConverted,
     totalNonConverted,
     averageConversionRate,
+    averageNonBouncedConversionRate,
     averageSpeed,
     annotations,
     percentile50,
