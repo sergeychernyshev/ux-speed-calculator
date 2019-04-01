@@ -21,7 +21,7 @@ const params = {
     label: "Number of Users",
     initial: 100000,
     min: 10000,
-    max: 1000000,
+    max: 1000000000,
     step: 1,
     serialize: true
   },
