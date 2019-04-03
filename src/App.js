@@ -20,6 +20,10 @@ const panels = [
     params: ["mu", "sigma"]
   },
   {
+    label: "Error Rate",
+    params: ["maxErrorRate", "errorRateDecay"]
+  },
+  {
     label: "Bounce Rate",
     params: ["bounceRateShift", "bounceRateScale", "bounceTimeCompression"]
   },
@@ -115,12 +119,16 @@ class App extends Component {
   render() {
     const {
       x,
+      erroredDistribution,
       bouncedDistribution,
       convertedDistribution,
       nonConvertedDistribution,
       annotations,
-      conversionRateDistribution,
+      errorRateDistribution,
       bounceRateDistribution,
+      effectiveBounceRateDistribution,
+      conversionRateDistribution,
+      effectiveConversionRateDistribution,
       totalConverted,
       averageConversionRate,
       averageNonBouncedConversionRate,
@@ -130,11 +138,15 @@ class App extends Component {
 
     const chartProps = {
       x,
+      erroredDistribution,
       bouncedDistribution,
       convertedDistribution,
       nonConvertedDistribution,
-      conversionRateDistribution,
       bounceRateDistribution,
+      errorRateDistribution,
+      effectiveBounceRateDistribution,
+      conversionRateDistribution,
+      effectiveConversionRateDistribution,
       displayMax: params.displayMax.value,
       annotations
     };

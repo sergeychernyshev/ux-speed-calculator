@@ -4,6 +4,7 @@ import Plot from "react-plotly.js";
 const ACTIVE_COLOR = "rgb(31, 119, 180)";
 const CONVERSION_COLOR = "#60e24f";
 const BOUNCED_COLOR = "silver";
+const ERRORED_COLOR = "red";
 
 export const annotationStyles = {
   font: {
@@ -22,11 +23,15 @@ export const annotationStyles = {
 
 export const Chart = ({
   x,
+  erroredDistribution,
   bouncedDistribution,
   convertedDistribution,
   nonConvertedDistribution,
-  conversionRateDistribution,
+  errorRateDistribution,
   bounceRateDistribution,
+  effectiveBounceRateDistribution,
+  conversionRateDistribution,
+  effectiveConversionRateDistribution,
   displayMax,
   annotations
 }) => (
@@ -62,6 +67,15 @@ export const Chart = ({
         y: bouncedDistribution
       },
       {
+        type: "bar",
+        name: "failed",
+        marker: {
+          color: ERRORED_COLOR
+        },
+        x,
+        y: erroredDistribution
+      },
+      {
         type: "line",
         name: "conv. rate",
         marker: {
@@ -73,12 +87,42 @@ export const Chart = ({
       },
       {
         type: "line",
+        name: "effective conv. rate",
+        marker: {
+          color: CONVERSION_COLOR
+        },
+        x,
+        y: effectiveConversionRateDistribution,
+        yaxis: "y2"
+      },
+      {
+        type: "line",
+        name: "failure rate",
+        marker: {
+          color: ERRORED_COLOR
+        },
+        x,
+        y: errorRateDistribution,
+        yaxis: "y2"
+      },
+      {
+        type: "line",
         name: "bounce rate",
         marker: {
           color: BOUNCED_COLOR
         },
         x,
         y: bounceRateDistribution,
+        yaxis: "y2"
+      },
+      {
+        type: "line",
+        name: "effective bounce rate",
+        marker: {
+          color: BOUNCED_COLOR
+        },
+        x,
+        y: effectiveBounceRateDistribution,
         yaxis: "y2"
       }
     ]}
@@ -91,7 +135,7 @@ export const Chart = ({
         rangemode: "nonnegative"
       },
       yaxis2: {
-        title: "Conversion rate, Bounce rate",
+        title: "Conversion rate, Bounce rate, Error rate",
         side: "left",
         overlaying: "y",
         showgrid: false,

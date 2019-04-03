@@ -43,6 +43,25 @@ const params = {
     step: 0.01,
     serialize: true
   },
+  maxErrorRate: {
+    description: "Maximum error rate at a fastest point of 0 seconds",
+    label: "Max error rate",
+    initial: 100,
+    min: 0,
+    max: 100,
+    step: 0.01,
+    units: "%",
+    serialize: true
+  },
+  errorRateDecay: {
+    description: "Speed (power) of exponential error rate decay",
+    label: "Error Rate Decay",
+    initial: 1.5,
+    min: 0,
+    max: 5,
+    step: 0.01,
+    serialize: true
+  },
   conversionDecay: {
     description: "Speed (power) of exponential conversion decay",
     label: "Conversion Decay",
@@ -118,7 +137,7 @@ const params = {
     description: "How fast does bounce rate affect the users",
     label: "Bounce time compression",
     initial: 4,
-    min: 0.05,
+    min: 0,
     step: 0.05,
     serialize: true
   }

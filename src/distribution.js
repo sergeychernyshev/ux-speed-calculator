@@ -27,7 +27,18 @@ const distribution = params => {
     Math.floor((value / distTotal) * params.volume.value)
   );
 
-  // bouce rate distribution (logarythmic)
+  // error rate distribution (exponential)
+  const errorRateDistribution = x.map(
+    time =>
+      params.maxErrorRate.value * Math.exp(-time * params.errorRateDecay.value)
+  );
+
+  // distribution of users who experienced failure (over page speed)
+  const erroredDistribution = totalPopulation.map((value, index) =>
+    Math.ceil((value * errorRateDistribution[index]) / 100)
+  );
+
+  // bounce rate distribution (logarythmic)
   const bounceRateDistribution = x.map(time => {
     let bounceRate =
       Math.log10(time * params.bounceTimeCompression.value + 1) *
@@ -47,7 +58,18 @@ const distribution = params => {
 
   // distribution of bounced users (over page speed)
   const bouncedDistribution = totalPopulation.map((value, index) =>
-    Math.floor((value * bounceRateDistribution[index]) / 100)
+    Math.ceil(
+      ((value - erroredDistribution[index]) * bounceRateDistribution[index]) /
+        100
+    )
+  );
+
+  // distribution of percentage of users who effectively bounced (including errored users)
+  const effectiveBounceRateDistribution = totalPopulation.map((value, index) =>
+    value
+      ? ((erroredDistribution[index] + bouncedDistribution[index]) / value) *
+        100
+      : 100
   );
 
   // conversion rate distribution (exponential)
@@ -61,16 +83,24 @@ const distribution = params => {
   // distribution of converted users (over page speed)
   const convertedDistribution = totalPopulation.map((value, index) =>
     Math.floor(
-      ((value - bouncedDistribution[index]) *
+      ((value - erroredDistribution[index] - bouncedDistribution[index]) *
         conversionRateDistribution[index]) /
         100
     )
   );
 
+  // distribution of percentage of users who effectively converted (including  errored users)
+  const effectiveConversionRateDistribution = totalPopulation.map(
+    (value, index) => (value ? (convertedDistribution[index] / value) * 100 : 0)
+  );
+
   // distribution of users who didn't bounce but still didn't convert (over page speed)
   const nonConvertedDistribution = totalPopulation.map(
     (population, index) =>
-      population - bouncedDistribution[index] - convertedDistribution[index]
+      population -
+      erroredDistribution[index] -
+      bouncedDistribution[index] -
+      convertedDistribution[index]
   );
 
   const totalBounced = bouncedDistribution.reduce(
@@ -154,11 +184,15 @@ const distribution = params => {
 
   return {
     x,
+    errorRateDistribution,
+    effectiveBounceRateDistribution,
+    bounceRateDistribution,
     conversionRateDistribution,
+    effectiveConversionRateDistribution,
     convertedDistribution,
+    erroredDistribution,
     bouncedDistribution,
     nonConvertedDistribution,
-    bounceRateDistribution,
     totalBounced,
     totalConverted,
     totalNonConverted,
