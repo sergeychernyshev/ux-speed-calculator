@@ -5,6 +5,7 @@ const ACTIVE_COLOR = "rgb(31, 119, 180)";
 const CONVERSION_COLOR = "#60e24f";
 const BOUNCED_COLOR = "silver";
 const ERRORED_COLOR = "red";
+const POPULATION_COLOR = "black";
 
 export const annotationStyles = {
   font: {
@@ -23,6 +24,7 @@ export const annotationStyles = {
 
 export const Chart = ({
   x,
+  totalPopulation,
   erroredDistribution,
   bouncedDistribution,
   convertedDistribution,
@@ -77,7 +79,18 @@ export const Chart = ({
       },
       {
         type: "line",
-        name: "conv. rate",
+        name: "total population",
+        marker: {
+          color: POPULATION_COLOR
+        },
+        x,
+        y: totalPopulation,
+        yaxis: "y"
+      },
+
+      {
+        type: "line",
+        name: "theoretical conv. rate",
         marker: {
           color: CONVERSION_COLOR
         },
@@ -107,7 +120,7 @@ export const Chart = ({
       },
       {
         type: "line",
-        name: "bounce rate",
+        name: "theoretical bounce rate",
         marker: {
           color: BOUNCED_COLOR
         },

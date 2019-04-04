@@ -12,10 +12,6 @@ import distribution from "./distribution";
 
 const panels = [
   {
-    label: "Chart Parameters",
-    params: ["volume", "displayMax", "bucketSize"]
-  },
-  {
     label: "Speed Distribution",
     params: ["mu", "sigma"]
   },
@@ -25,16 +21,15 @@ const panels = [
   },
   {
     label: "Bounce Rate",
-    params: ["bounceRateShift", "bounceRateScale", "bounceTimeCompression"]
+    params: ["bounceRateShift", "bounceTimeCompression", "bounceRateScale"]
   },
   {
     label: "Conversion Rate",
-    params: [
-      "averageValue",
-      "conversionDecay",
-      "maxConversionRate",
-      "conversionPovertyLine"
-    ]
+    params: ["conversionDecay", "maxConversionRate", "conversionPovertyLine"]
+  },
+  {
+    label: "Chart Parameters",
+    params: ["volume", "averageValue", "displayMax", "bucketSize"]
   }
 ];
 
@@ -119,6 +114,7 @@ class App extends Component {
   render() {
     const {
       x,
+      totalPopulation,
       erroredDistribution,
       bouncedDistribution,
       convertedDistribution,
@@ -138,6 +134,7 @@ class App extends Component {
 
     const chartProps = {
       x,
+      totalPopulation,
       erroredDistribution,
       bouncedDistribution,
       convertedDistribution,

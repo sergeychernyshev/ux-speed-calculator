@@ -69,7 +69,7 @@ const distribution = params => {
     value
       ? ((erroredDistribution[index] + bouncedDistribution[index]) / value) *
         100
-      : 100
+      : NaN
   );
 
   // conversion rate distribution (exponential)
@@ -91,7 +91,12 @@ const distribution = params => {
 
   // distribution of percentage of users who effectively converted (including  errored users)
   const effectiveConversionRateDistribution = totalPopulation.map(
-    (value, index) => (value ? (convertedDistribution[index] / value) * 100 : 0)
+    (value, index) =>
+      value - erroredDistribution[index] - bouncedDistribution[index]
+        ? (convertedDistribution[index] /
+            (value - erroredDistribution[index] - bouncedDistribution[index])) *
+          100
+        : NaN
   );
 
   // distribution of users who didn't bounce but still didn't convert (over page speed)
@@ -184,6 +189,7 @@ const distribution = params => {
 
   return {
     x,
+    totalPopulation,
     errorRateDistribution,
     effectiveBounceRateDistribution,
     bounceRateDistribution,

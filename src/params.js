@@ -56,7 +56,7 @@ const params = {
   errorRateDecay: {
     description: "Speed (power) of exponential error rate decay",
     label: "Error Rate Decay",
-    initial: 1.5,
+    initial: 3,
     min: 0,
     max: 5,
     step: 0.01,
