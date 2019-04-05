@@ -96,7 +96,10 @@ export const Chart = ({
         },
         x,
         y: conversionRateDistribution,
-        yaxis: "y2"
+        yaxis: "y2",
+        line: {
+          dash: "dot"
+        }
       },
       {
         type: "line",
@@ -116,7 +119,10 @@ export const Chart = ({
         },
         x,
         y: errorRateDistribution,
-        yaxis: "y2"
+        yaxis: "y2",
+        line: {
+          dash: "dot"
+        }
       },
       {
         type: "line",
@@ -126,7 +132,10 @@ export const Chart = ({
         },
         x,
         y: bounceRateDistribution,
-        yaxis: "y2"
+        yaxis: "y2",
+        line: {
+          dash: "dot"
+        }
       },
       {
         type: "line",
