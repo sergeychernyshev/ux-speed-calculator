@@ -212,7 +212,7 @@ class App extends Component {
 
         <footer>
           <span>
-            2019 &copy;{" "}
+            2019-2020 &copy;{" "}
             <a
               target="_blank"
               rel="noopener noreferrer"
