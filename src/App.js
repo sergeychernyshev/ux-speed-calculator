@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import qs from "query-string";
+import debounce from "debounce";
 
 import ConfigPanel from "./ConfigPanel";
 import Field from "./Field";
@@ -29,7 +30,13 @@ const panels = [
   },
   {
     label: "Chart Parameters",
-    params: ["volume", "averageValue", "displayMax", "bucketSize"]
+    params: [
+      "volume",
+      "acquisitionCost",
+      "averageValue",
+      "displayMax",
+      "bucketSize"
+    ]
   }
 ];
 
@@ -179,11 +186,40 @@ class App extends Component {
             </p>
           </div>
           <div>
-            Total Value
+            Total Revenue
             <p>
               <b>
                 {parseInt(
                   totalConverted * params.averageValue.value
+                ).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  minimumFractionDigits: 0
+                })}
+              </b>
+            </p>
+          </div>
+          <div>
+            Cost of Acquisition
+            <p>
+              <b>
+                {parseInt(
+                  params.volume.value * params.acquisitionCost.value
+                ).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  minimumFractionDigits: 0
+                })}
+              </b>
+            </p>
+          </div>
+          <div>
+            Profit
+            <p>
+              <b>
+                {parseInt(
+                  totalConverted * params.averageValue.value -
+                    params.volume.value * params.acquisitionCost.value
                 ).toLocaleString("en-US", {
                   style: "currency",
                   currency: "USD",
@@ -202,7 +238,9 @@ class App extends Component {
               {panel.params.map(paramName => (
                 <Field
                   key={paramName}
-                  onChange={e => this.set(paramName, e.target.value)}
+                  onChange={e =>
+                    debounce(this.set(paramName, e.target.value), 50)
+                  }
                   {...params[paramName]}
                 />
               ))}

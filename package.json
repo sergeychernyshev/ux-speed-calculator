@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "debounce": "^1.2.0",
     "distributions-lognormal-pdf": "0.0.2",
     "plotly.js": "^1.45.2",
     "query-string": "^6.4.2",

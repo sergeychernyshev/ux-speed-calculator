@@ -25,6 +25,25 @@ const params = {
     step: 1,
     serialize: true
   },
+  acquisitionCost: {
+    description: "Cost of acquiring one user",
+    label: "Acquisition Cost",
+    initial: 0.3,
+    min: 0.01,
+    step: 0.01,
+    serialize: true,
+    units: "$"
+  },
+  averageValue: {
+    label: "Average Value of a Converted User",
+    initial: 10,
+    min: 0.01,
+    max: 1000,
+    step: 0.01,
+    displayOnly: true,
+    serialize: true,
+    units: "$"
+  },
   mu: {
     description: "'Location' of lognormal speed distribution",
     label: "Base Speed (μ)",
@@ -69,15 +88,6 @@ const params = {
     min: 0,
     max: 5,
     step: 0.01,
-    serialize: true
-  },
-  averageValue: {
-    label: "Average Value of a Converted User",
-    initial: 10,
-    min: 0.01,
-    max: 1000,
-    step: 0.01,
-    displayOnly: true,
     serialize: true
   },
   maxConversionRate: {
@@ -125,7 +135,7 @@ const params = {
   },
   bounceRateScale: {
     description: "How high is the bounce rate on the site",
-    label: "Bounce rate scale",
+    label: "Bounce rate variance",
     initial: 50,
     min: 0,
     max: 100,
